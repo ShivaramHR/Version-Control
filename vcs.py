@@ -73,38 +73,31 @@ def commit(path):
     commit_id = head_file.read_text()
 
     if commit_id == "None":
-        commit_id = "c1"
+        new_commit_id = "c1"
         parent = "None"
-        head_file.write_text(commit_id)
-    elif "c" in commit_id:
+    else:
         parent = commit_id
-        commit_id = "c" + str(int(commit_id[1:]) + 1)
-        head_file.write_text(commit_id)
+        new_commit_id = "c" + str(int(commit_id[1:]) + 1)  
     json_file = path / ".vcs" / "index.json"
-    json_content = json_file.read_bytes()
 
-    commitFiles = {}
     with open(json_file, 'r') as f:
         json_data = json.load(f)
-    for key, value in json_data.items():
-        commitFiles[key] = value
-    commit_hash = hash_file(json_content)
-    commitPath = path / ".vcs" / "commits" / commit_id
-    commitPath.write_text("{}")
-    commitContent = commitPath.read_text()
+    if not json_data:
+        print("No files to commit")
+        return
+    commitFiles = json_data.copy()
+    commitPath = path / ".vcs" / "commits" / f"{new_commit_id}.json"
 
-    try:
-        commitData = json.loads(commitContent)
-    except json.JSONDecodeError:
-        commitData = {}
-
-    commitData['commit_id'] = commit_id
-    commitData['parent'] = parent
-    commitData['hash'] = commit_hash
-    commitData['files'] = commitFiles
+    commitData = {
+        'id': new_commit_id,
+        'parent': parent,
+        'files': commitFiles
+    }
 
     commitPath.write_text(json.dumps(commitData, indent=2))
     json_file.write_text('{}')
+    head_file.write_text(new_commit_id)
+    print(f"Commit {new_commit_id} created successfully")
     
 
 
