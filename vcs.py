@@ -3,7 +3,7 @@ import json
 import os
 from pathlib import Path
 
-
+# To initialise .vcs directory
 def init(path):
     vcs_dir = path / ".vcs"
     vcs_dir.mkdir(exist_ok=True)
@@ -23,9 +23,24 @@ def init(path):
 
     print("VCS initialized successfully")
 
+#To hash the file
+def hash_file(content):
+    h = hashlib.sha256(content)
+    return h.hexdigest()
+
+#To stage or add files
+def add(path):
+    doc = sys.argv[2]
+    docPath = path / doc
+    with open(docPath, "r") as f:
+        content = Path(f).read_bytes()
+    hashValue = hash_file(content)
+    hashedPath = path / ".vcs" / "objects" / hashValue
+    hashedPath.write_bytes(content)
 
 commands = {
-    "init": init
+    "init": init,
+    "add": add
 }
 
 
