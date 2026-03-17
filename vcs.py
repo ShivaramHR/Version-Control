@@ -3,6 +3,7 @@ import json
 import os
 from pathlib import Path
 import hashlib
+from datetime import datetime, timezone
 
 # To initialise .vcs directory
 def init(path):
@@ -69,6 +70,8 @@ def add(path):
     print(f"File {fileName} added to index")
 
 def commit(path):
+    timestamp = datetime.now(timezone.utc).isoformat()
+    message = sys.argv[2]
     head_file = path / ".vcs" / "HEAD"
     commit_id = head_file.read_text()
 
@@ -91,6 +94,8 @@ def commit(path):
     commitData = {
         'id': new_commit_id,
         'parent': parent,
+        'message': message,
+        'timestamp': timestamp,
         'files': commitFiles
     }
 
