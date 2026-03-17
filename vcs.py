@@ -31,21 +31,25 @@ def hash_file(content):
 
 #To stage or add files
 def add(path):
-    doc = sys.argv[2]
-    docPath = path / doc
-    with open(docPath, "r") as f:
-        content = Path(docPath).read_bytes()
+    fileName = sys.argv[2]
+    docPath = path / fileName
+    if not docPath.exists():
+        print(f"File {fileName} does not exist")
+        return
+    content = docPath.read_bytes()
     hashValue = hash_file(content)
     hashedPath = path / ".vcs" / "objects" / hashValue
-    hashedPath.write_bytes(content)
+    if not hashedPath.exists():
+        hashedPath.write_bytes(content)
     json_file = path / ".vcs" / "index.json"
     json_content = json_file.read_text()
-    json_data = json.loads(json_content)
-    if doc in json_data:
-        json_data[doc] = hashValue 
-        return
-    json_data[doc] = hashValue
-    json_file.write_text(json.dumps(json_data))
+    try:
+        json_data = json.loads(json_content)
+    except json.JSONDecodeError:
+        json_data = {}
+    json_data[fileName] = hashValue
+    json_file.write_text(json.dumps(json_data, indent=2))
+    print(f"File {fileName} added to index")
 
 commands = {
     "init": init,
