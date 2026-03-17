@@ -33,22 +33,39 @@ def hash_file(content):
 def add(path):
     fileName = sys.argv[2]
     docPath = path / fileName
+
+    #checks if file exists
     if not docPath.exists():
         print(f"File {fileName} does not exist")
         return
     content = docPath.read_bytes()
+
+    #calls hash_file() to get hash value of the file
     hashValue = hash_file(content)
+
+    #checks if the file is already hashed
     hashedPath = path / ".vcs" / "objects" / hashValue
     if not hashedPath.exists():
         hashedPath.write_bytes(content)
+
+    #reads index.json
     json_file = path / ".vcs" / "index.json"
+
+    #checks if index.json is valid JSON
     json_content = json_file.read_text()
+
+    #if not valid JSON, initialize empty dict
     try:
+        #parses the JSON content
         json_data = json.loads(json_content)
     except json.JSONDecodeError:
         json_data = {}
+    
+    #adds file to index
     json_data[fileName] = hashValue
-    json_file.write_text(json.dumps(json_data, indent=2))
+    json_file.write_text(json.dumps(json_data, indent=2, sort_keys=True))
+    
+    #prints succes message
     print(f"File {fileName} added to index")
 
 commands = {
