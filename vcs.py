@@ -103,13 +103,24 @@ def commit(path):
     json_file.write_text('{}')
     head_file.write_text(new_commit_id)
     print(f"Commit {new_commit_id} created successfully")
-    
+
+def log(path):
+    commitFiles = path / '.vcs' / 'commits'
+    for commitFile in commitFiles.iterdir():
+        if commitFile.name.startswith('c'):
+            with open(commitFile, 'r') as f:
+                commitData = json.load(f)
+            print(f"Commit {commitData['id']}")
+            print(f"Message {commitData['message']}")
+            print(f"Timestamp {commitData['timestamp']}")
+            print()
 
 
 commands = {
     "init": init,
     "add": add,
-    "commit": commit
+    "commit": commit,
+    "log": log
 }
 
 
