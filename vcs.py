@@ -2,6 +2,7 @@ import sys
 import json
 import os
 from pathlib import Path
+import hashlib
 
 # To initialise .vcs directory
 def init(path):
@@ -33,7 +34,7 @@ def add(path):
     doc = sys.argv[2]
     docPath = path / doc
     with open(docPath, "r") as f:
-        content = Path(f).read_bytes()
+        content = Path(docPath).read_bytes()
     hashValue = hash_file(content)
     hashedPath = path / ".vcs" / "objects" / hashValue
     hashedPath.write_bytes(content)
