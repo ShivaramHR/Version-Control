@@ -78,12 +78,26 @@ def commit(path):
         head_file.write_text(commit_id)
     elif "c" in commit_id:
         parent = commit_id
-        commit_id = "c" + str(int(head_content[1:]) + 1)
+        commit_id = "c" + str(int(commit_id[1:]) + 1)
     json_file = path / ".vcs" / "index.json"
     json_content = json_file.read_bytes()
     commit_hash = hash_file(json_content)
-    hashedPath = path / ".vcs" / "commits" / commit_id
-    hashedPath.write_bytes(json_content)
+    commitPath = path / ".vcs" / "commits" / commit_id
+    commitPath.write_text("{}")
+    commitContent = commitPath.read_text()
+
+    try:
+        commitData = json.loads(commitContent)
+    except json.JSONDecodeError:
+        commitData = {}
+
+    commitData['commit_id'] = commit_id
+    commitData['parent'] = parent
+    commitData['hash'] = commit_hash
+
+    commitPath.write_text(json.dumps(commitData, indent=2, sort_keys=True))
+    
+
 
 commands = {
     "init": init,
