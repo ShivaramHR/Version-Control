@@ -38,6 +38,14 @@ def add(path):
     hashValue = hash_file(content)
     hashedPath = path / ".vcs" / "objects" / hashValue
     hashedPath.write_bytes(content)
+    json_file = path / ".vcs" / "index.json"
+    json_content = json_file.read_text()
+    json_data = json.loads(json_content)
+    if doc in json_data:
+        json_data[doc] = hashValue 
+        return
+    json_data[doc] = hashValue
+    json_file.write_text(json.dumps(json_data))
 
 commands = {
     "init": init,
