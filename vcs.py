@@ -105,15 +105,16 @@ def commit(path):
     print(f"Commit {new_commit_id} created successfully")
 
 def log(path):
-    commitFiles = path / '.vcs' / 'commits'
-    for commitFile in commitFiles.iterdir():
-        if commitFile.name.startswith('c'):
-            with open(commitFile, 'r') as f:
-                commitData = json.load(f)
-            print(f"Commit {commitData['id']}")
-            print(f"Message {commitData['message']}")
-            print(f"Timestamp {commitData['timestamp']}")
-            print()
+    headFile = path / ".vcs" / "HEAD"
+    commit_id = headFile.read_text()
+    while commit_id != 'None':
+        commitFile = path / '.vcs' / 'commits' / f'{commit_id}.json'
+        commitData = json.loads(commitFile.read_text())
+        print(f"Commit ID: {commitData['id']}")
+        print(f"Message: {commitData['message']}")
+        print(f"Timestamp: {commitData['timestamp']}")
+        print()
+        commit_id = commitData['parent']
 
 
 commands = {
