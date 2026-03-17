@@ -117,11 +117,42 @@ def log(path):
         commit_id = commitData['parent']
 
 
+def status(path):
+    headFile = path / ".vcs" / "HEAD"
+    commit_id = headFile.read_text()
+    commitData = {}
+    if commit_id != 'None':
+        commitFile = path / '.vcs' / 'commits' / f'{commit_id}.json'
+        commitData = json.loads(commitFile.read_text())
+    
+    indexFile = path / '.vcs' / 'index.json'
+    indexData = json.loads(indexFile.read_text())
+
+    workingFiles = [f for f in path.iterdir() if f.is_file() and f.name != '.vcs']
+
+    for file in workingFiles:
+        name = file.name
+        contents = file.read_bytes()
+        current_hash = hash_file(contents)
+
+        if name not in indexData:
+            print(f"Untracked file: {name}")
+        elif indexData[name] != current_hash:
+            print(f"Modified file: {name}")
+        elif name not in commitData.get('files', {}) and indexData[name] != commitData['files'][name]:
+            print(f"Staged file: {name}")
+
+        for name in commitData.get('files', {}):
+            if not (path / name).exists():
+                print(f"Deleted file: {name}")
+
+                
 commands = {
     "init": init,
     "add": add,
     "commit": commit,
-    "log": log
+    "log": log,
+    'status': status
 }
 
 
