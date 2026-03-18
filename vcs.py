@@ -146,6 +146,14 @@ def status(path):
             if not (path / name).exists():
                 print(f"Deleted file: {name}")
 
+def checkout(path, commit_id):
+    commitFile = path / '.vcs' / 'commits' / f'{commit_id}.json'
+    commitData = json.loads(commitFile.read_text())
+    for name, hash in commitData['files'].items():
+        file = path / name
+        content = file.read_bytes()
+        file.write_bytes(content)
+
                 
 commands = {
     "init": init,
