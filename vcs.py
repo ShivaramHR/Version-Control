@@ -31,8 +31,7 @@ def hash_file(content):
     return h.hexdigest()
 
 #To stage or add files
-def add(path):
-    fileName = sys.argv[2]
+def add(path, fileName):
     docPath = path / fileName
 
     #checks if file exists
