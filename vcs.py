@@ -31,7 +31,8 @@ def hash_file(content):
     return h.hexdigest()
 
 #To stage or add files
-def add(path, fileName):
+def add(path):
+    fileName = sys.argv[2]
     docPath = path / fileName
 
     #checks if file exists
@@ -68,7 +69,8 @@ def add(path, fileName):
     #prints succes message
     print(f"File {fileName} added to index")
 
-def commit(path, message):
+def commit(path):
+    message = sys.argv[2]
     timestamp = datetime.now(timezone.utc).isoformat()
     head_file = path / ".vcs" / "HEAD"
     commit_id = head_file.read_text()
@@ -144,7 +146,8 @@ def status(path):
             if not (path / name).exists():
                 print(f"Deleted file: {name}")
 
-def checkout(path, commit_id):
+def checkout(path):
+    commit_id = sys.argv[2]
     commitFile = path / '.vcs' / 'commits' / f'{commit_id}.json'
     commitData = json.loads(commitFile.read_text())
     for name, hash in commitData['files'].items():
@@ -172,7 +175,7 @@ def execute():
     path = Path.cwd()
 
     if command in commands:
-        commands[command](path, sys.argv[2] if len(sys.argv) > 2 else None)
+        commands[command](path)
     else:
         print(f"Unknown command: {command}")
 
