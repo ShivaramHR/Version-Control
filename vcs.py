@@ -69,9 +69,8 @@ def add(path):
     #prints succes message
     print(f"File {fileName} added to index")
 
-def commit(path):
+def commit(path, message):
     timestamp = datetime.now(timezone.utc).isoformat()
-    message = sys.argv[2]
     head_file = path / ".vcs" / "HEAD"
     commit_id = head_file.read_text()
 
@@ -160,7 +159,8 @@ commands = {
     "add": add,
     "commit": commit,
     "log": log,
-    'status': status
+    'status': status,
+    'checkout': checkout
 }
 
 
@@ -173,7 +173,7 @@ def execute():
     path = Path.cwd()
 
     if command in commands:
-        commands[command](path)
+        commands[command](path, sys.argv[2] if len(sys.argv) > 2 else None)
     else:
         print(f"Unknown command: {command}")
 
