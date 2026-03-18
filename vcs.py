@@ -147,17 +147,39 @@ def status(path):
                 print(f"Deleted file: {name}")
 
 def checkout(path):
+    if len(sys.argv) < 3:
+        print("Usage: vcs checkout <commit_id>")
+        return
+
     commit_id = sys.argv[2]
+
     commitFile = path / '.vcs' / 'commits' / f'{commit_id}.json'
+
+    if not commitFile.exists():
+        print("Commit does not exist")
+        return
+
     commitData = json.loads(commitFile.read_text())
+
+    # --- delete extra files ---
+    for file in path.iterdir():
+        if file.is_file() and file.name != ".vcs":
+            if file.name not in commitData['files']:
+                file.unlink()
+
+    # --- restore files ---
     for name, hash in commitData['files'].items():
-        objectsPath = path / '.vcs' / 'objects'
+        requiredObjectsPath = path / '.vcs' / 'objects' / hash
         filePath = path / name
-        for file in objectsPath.iterdir():
-            if file.name == hash:
-                fileContent = file.read_text()
-                filePath.write_text(fileContent)
-                break
+
+        fileContent = requiredObjectsPath.read_bytes()
+        filePath.write_bytes(fileContent)
+
+    # --- update HEAD ---
+    headFile = path / ".vcs" / "HEAD"
+    headFile.write_text(commit_id)
+
+    print(f"Switched to {commit_id}")
 
                 
 commands = {
