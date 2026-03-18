@@ -151,9 +151,13 @@ def checkout(path):
     commitFile = path / '.vcs' / 'commits' / f'{commit_id}.json'
     commitData = json.loads(commitFile.read_text())
     for name, hash in commitData['files'].items():
-        file = path / name
-        content = file.read_bytes()
-        file.write_bytes(content)
+        objectsPath = path / '.vcs' / 'objects'
+        filePath = path / name
+        for file in objectsPath.iterdir():
+            if file.name == hash:
+                fileContent = file.read_text()
+                filePath.write_text(fileContent)
+                break
 
                 
 commands = {
